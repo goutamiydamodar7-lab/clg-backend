@@ -1,36 +1,39 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
-const connectDB = require("./config/db");
-
-const authRoutes = require("./routes/authRoutes");
-const courseRoutes = require("./routes/courseRoutes");
-const studentRoutes = require("./routes/studentRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
-
-dotenv.config();
 
 const app = express();
-
-// Connect DB
-connectDB();
-
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/courses", courseRoutes);
-app.use("/api/students", studentRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-// Test route
-app.get("/", (req, res) => {
-  res.send("Backend running 🚀");
+// MongoDB connection
+mongoose
+  .connect("mongodb://127.0.0.1:27017/admissionDB")
+  .then(() => console.log("MongoDB Connected ✅"))
+  .catch((err) => console.log(err));
+
+// Schema
+const studentSchema = new mongoose.Schema({
+  name: String,
+  course: String,
+  status: { type: String, default: "Pending" },
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const Student = mongoose.model("Student", studentSchema);
+
+// GET students
+app.get("/api/students", async (req, res) => {
+  const data = await Student.find();
+  res.json(data);
+});
+
+app.post("/api/students", async (req, res) => {
+  const student = new Student(req.body);
+  await student.save();
+  res.json({ message: "Added" });
+});
+
+// Server
+app.listen(5000, () => {
+  console.log("Server running on port 5000 🚀");
 });

@@ -9,7 +9,7 @@
     "dev": "nodemon server.js"
   },
   "repository": {
-    "type": "git",
+    "type": "module",
     "url": "git+https://github.com/goutamiydamodar7-lab/clg-backend.git"
   },
   "keywords": [],
